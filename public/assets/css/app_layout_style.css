@@ -1,0 +1,70 @@
+body {
+    overflow-x: hidden; /* Previene scroll horizontal indeseado */
+}
+
+#wrapper {
+    display: flex;
+    width: 100%;
+    align-items: stretch; /* El sidebar y el contenido ocupan toda la altura */
+}
+
+/* Sidebar */
+#sidebar-wrapper {
+    min-height: 100vh; /* El sidebar siempre ocupa el alto de la pantalla */
+    width: 250px;
+    background-color: #f8f9fa; /* Un color claro para el sidebar */
+    z-index: 1000; /* Para que esté por encima de otros elementos si es necesario */
+    transition: margin-left 0.25s ease-in-out;
+}
+
+#sidebar-wrapper .sidebar-heading a:hover {
+    opacity: 0.8;
+}
+
+#sidebar-wrapper .list-group-item {
+    border: none;
+    padding: 0.9rem 1.25rem;
+    color: #495057; /* Color de texto para los items */
+    font-weight: 500;
+}
+
+#sidebar-wrapper .list-group-item i {
+    font-size: 1.1rem; /* Tamaño de los iconos */
+}
+
+#sidebar-wrapper .list-group-item:hover,
+#sidebar-wrapper .list-group-item:focus {
+    background-color: #e9ecef; /* Un hover sutil */
+    color: #0d6efd; /* Color primario al hacer hover */
+    text-decoration: none;
+}
+
+#sidebar-wrapper .list-group-item.active {
+    background-color: #0d6efd;
+    color: white;
+    border-left: 4px solid #ffc107; /* Un borde para destacar el activo */
+}
+
+/* Contenido de la página */
+#page-content-wrapper {
+    width: 100%;
+    min-width: 0; /* Necesario para que el flexbox funcione correctamente */
+    display: flex;
+    flex-direction: column; /* Para que el footer se quede abajo */
+    min-height: 100vh; /* El contenido ocupa al menos toda la altura */
+}
+
+/* Toggle del Sidebar */
+#wrapper.toggled #sidebar-wrapper {
+    margin-left: -250px; /* Esconde el sidebar */
+}
+
+/* En pantallas pequeñas (md y menores), el sidebar se oculta por defecto y el toggle lo muestra */
+@media (max-width: 991.98px) { /* lg breakpoint de Bootstrap */
+    #sidebar-wrapper {
+        margin-left: -250px;
+    }
+    #wrapper.toggled #sidebar-wrapper {
+        margin-left: 0; /* Muestra el sidebar */
+    }
+}
