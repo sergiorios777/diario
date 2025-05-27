@@ -33,46 +33,60 @@
                 </tr>
             </thead>
             <tbody>
-                <?php if (!empty($products)): ?>
-                    <?php foreach ($products as $product): ?>
-                        <tr>
-                            <td><?= esc($product['code']) ?></td>
-                            <td><?= esc($product['name']) ?></td>
-                            <td><?= esc($product['category_name'] ?? ($product['category_id'] ?? 'N/A')) ?></td>
-                            <td><?= esc($product['unit_of_measure']) ?></td>
-                            <td>S/ <?= esc(number_format($product['sale_price'], 2)) ?></td>
-                            <td>S/ <?= esc(number_format($product['cost_price'], 2)) ?></td>
-                            <td><?= esc($product['stock_quantity']) ?></td>
-                            <td>
-                                <a href="<?= site_url('products/edit/' . $product['id']) ?>" class="btn btn-sm btn-outline-warning" title="Editar"><i class="bi bi-pencil-square"></i></a>
-                                <a href="<?= site_url('products/delete/' . $product['id']) ?>" class="btn btn-sm btn-outline-danger" title="Eliminar" onclick="return confirm('¿Estás seguro de querer eliminar este producto? Se moverá a la papelera.');"><i class="bi bi-trash3"></i></a>
-                            </td>
-                        </tr>
-                    <?php endforeach; ?>
-                <?php else: ?>
-                    <tr>
-                        <td colspan="8" class="text-center">No hay productos registrados.</td>
-                    </tr>
-                <?php endif; ?>
+                
             </tbody>
         </table>
     </div>
 <?= $this->endSection() ?>
 
 <?= $this->section('pageScripts') ?>
-    <script src="https://code.jquery.com/jquery-3.7.0.js"></script> <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
     <script>
         $(document).ready(function() {
-            $('#productsTable').DataTable({
-                language: {
-                    url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json', // Traducción a español
+        var productsData = <?= json_encode($products ?? []) ?>; // Pasar datos PHP a JS
+
+        $('#productsTable').DataTable({
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json',
+                emptyTable: "No hay productos registrados para mostrar." // Mensaje para tabla vacía
+            },
+            data: productsData, // Usar los datos pasados
+            columns: [
+                { data: 'code' },
+                { data: 'name' },
+                { data: 'category_name', defaultContent: 'N/A' }, // o category_id
+                { data: 'unit_of_measure' },
+                { 
+                    data: 'sale_price',
+                    render: function(data, type, row) {
+                        return 'S/ ' + parseFloat(data).toFixed(2);
+                    }
                 },
-                // "processing": true, // Descomentar si usas server-side
-                // "serverSide": true, // Descomentar si usas server-side
-                // "ajax": "<?= site_url('products/ajaxProducts') ?>", // Descomentar si usas server-side
-                "responsive": true, // Para hacerlo responsivo
-            });
+                { 
+                    data: 'cost_price',
+                    render: function(data, type, row) {
+                        return 'S/ ' + parseFloat(data).toFixed(2);
+                    }
+                },
+                { data: 'stock_quantity' },
+                {
+                    data: 'id', // Usamos el ID para generar los enlaces de acción
+                    render: function(data, type, row) {
+                        let editUrl = '<?= site_url('products/edit/') ?>' + data;
+                        let deleteUrl = '<?= site_url('products/delete/') ?>' + data;
+                        return `
+                            <a href="${editUrl}" class="btn btn-sm btn-outline-warning" title="Editar"><i class="bi bi-pencil-square"></i></a>
+                            <a href="${deleteUrl}" class="btn btn-sm btn-outline-danger" title="Eliminar" onclick="return confirm('¿Estás seguro de querer eliminar este producto? Se moverá a la papelera.');"><i class="bi bi-trash3"></i></a>
+                        `;
+                    },
+                    orderable: false, // La columna de acciones no se ordena
+                    searchable: false // La columna de acciones no se busca
+                }
+            ],
+            "responsive": true, // Opcional
+        });
         });
     </script>
 <?= $this->endSection() ?>
