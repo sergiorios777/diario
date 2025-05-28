@@ -12,6 +12,7 @@ class ProductController extends AppBaseController
     public function __construct()
     {
         $this->productModel = new ProductModel();
+        $this->validator = \Config\Services::validation(); // Instanciar el servicio aquí
         helper(['form', 'url']);    // Carga helpers
     }
     /**
@@ -47,37 +48,25 @@ class ProductController extends AppBaseController
      */
     public function create()
     {
-        $validationRules = $this->productModel->getValidationRules();
-        // Para el código, si es manual, 'required' es suficiente.
-        // Si es autogenerado simple, puedes quitar 'required' y generarlo aquí antes de insertar.
-        // Ejemplo simple de código autogenerado (no robusto para alta concurrencia):
-        // $lastProduct = $this->productModel->orderBy('id', 'DESC')->first();
-        // $nextId = $lastProduct ? ((int) substr($lastProduct['code'], 4)) + 1 : 1;
-        // $productCode = 'PROD' . str_pad($nextId, 4, '0', STR_PAD_LEFT);
+        // 1. Obtener los datos del formulario
+        $postData = $this->request->getPost();
 
-        $dataToSave = [
-            'code'            => $this->request->getPost('code'), // o $productCode si es autogenerado
-            'name'            => $this->request->getPost('name'),
-            'description'     => $this->request->getPost('description'),
-            'unit_of_measure' => $this->request->getPost('unit_of_measure'),
-            'sale_price'      => $this->request->getPost('sale_price'),
-            'cost_price'      => $this->request->getPost('cost_price'),
-            'initial_lot'     => $this->request->getPost('initial_lot'),
-            'category_name'   => $this->request->getPost('category_name'), // o 'category_id'
-            // 'stock_quantity' => 0, // Se inicializa por defecto o con la primera compra
-        ];
-        
-        if (!$this->validate($validationRules)) {
+        // 2. Ejecutar la validación y manejar los errores
+        if (!$this->validator->run($postData, 'createProducts')) {
             session()->setFlashdata('error', 'Por favor, corrige los errores del formulario.');
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
+        
+        // Lógica para generar código si es autogenerado y no viene en $postData['code']
+        // ...
 
-        if ($this->productModel->save($dataToSave)) {
+        // 3. Guardar el producto
+        if ($this->productModel->save($postData)) {
             session()->setFlashdata('success', 'Producto registrado exitosamente.');
             return redirect()->to('/products');
         } else {
             session()->setFlashdata('error', 'No se pudo registrar el producto.');
-            return redirect()->back()->withInput();
+            return redirect()->back()->withInput()->with('errors', $this->productModel->errors());
         }
     }
 
@@ -105,38 +94,41 @@ class ProductController extends AppBaseController
      */
     public function update($id = null)
     {
+        // 1. Validar que $id de la URL sea un número entero positivo.
+        if (!ctype_digit((string)$id) || (int)$id <= 0) {
+            session()->setFlashdata('error', 'El ID del producto es inválido.');
+            return redirect()->to('/products');
+        }
+        
         $product = $this->productModel->find($id);
         if (!$product) {
             session()->setFlashdata('error', 'Producto no encontrado.');
             return redirect()->to('/products');
         }
 
-        // Ajusta las reglas de validación para 'is_unique' en la actualización
-        $validationRules = $this->productModel->getValidationRules(['id' => $id]);
+        $postData = $this->request->getPost();
         
-        $dataToUpdate = [
-            'id'              => $id, // Necesario para la validación de is_unique
-            'code'            => $this->request->getPost('code'),
-            'name'            => $this->request->getPost('name'),
-            'description'     => $this->request->getPost('description'),
-            'unit_of_measure' => $this->request->getPost('unit_of_measure'),
-            'sale_price'      => $this->request->getPost('sale_price'),
-            'cost_price'      => $this->request->getPost('cost_price'),
-            'initial_lot'     => $this->request->getPost('initial_lot'),
-            'category_name'   => $this->request->getPost('category_name'), // o 'category_id'
-        ];
+        // === PREPARACIÓN DE DATOS PARA VALIDACIÓN ===
+        // Creamos un array con los datos del POST y añadimos el 'id' del producto actual.
+        // Este 'id' será usado por la regla 'is_unique' para el campo 'code' (el placeholder {id})
+        // y también será validado por su propia regla 'permit_empty|is_natural_no_zero' definida en el modelo.
+        $dataForValidation = $postData;
+        $dataForValidation['id'] = $id; 
 
-        if (!$this->validate($validationRules)) {
+        // Ejecutar la validación y manejar los errores
+        if (!$this->validator->run($dataForValidation, 'updateProducts')) {
             session()->setFlashdata('error', 'Por favor, corrige los errores del formulario.');
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
-        if ($this->productModel->save($dataToUpdate)) {
+        // Si la validación pasa, procedemos a actualizar usando solo los datos del POST.
+        // El modelo se encargará de los $allowedFields.
+        if ($this->productModel->update($id, $postData)) {
             session()->setFlashdata('success', 'Producto actualizado exitosamente.');
             return redirect()->to('/products');
         } else {
             session()->setFlashdata('error', 'No se pudo actualizar el producto.');
-            return redirect()->back()->withInput();
+            return redirect()->back()->withInput()->with('errors', $this->productModel->errors());
         }
     }
 

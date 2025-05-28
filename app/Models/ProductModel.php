@@ -33,19 +33,8 @@ class ProductModel extends Model
     protected $deletedField  = 'deleted_at';
 
     // Validation
-    protected $validationRules      = [
-        'code' => 'required|is_unique[products.code,id,{id}]|max_length[50]',
-        'name' => 'required|max_length[255]',
-        'unit_of_measure' => 'required|max_length[50]',
-        'sale_price' => 'required|decimal|greater_than_equal_to[0]',
-        'cost_price' => 'required|decimal|greater_than_equal_to[0]',
-        'category_name' => 'permit_empty|max_length[100]', // Si usas category_id, ajusta la regla
-    ];
-    protected $validationMessages   = [
-        'code' => [
-            'is_unique' => 'El código del producto ya existe.',
-        ],
-    ];
+    protected $validationRules      = [];
+    protected $validationMessages   = [];
     protected $skipValidation       = false;
     protected $cleanValidationRules = true;
 
