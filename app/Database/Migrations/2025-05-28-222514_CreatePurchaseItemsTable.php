@@ -49,7 +49,7 @@ class CreatePurchaseItemsTable extends Migration
                 'null' => true,
             ],
         ]);
-        
+        // Se implementará deleted_at posterioremente por su implicancia en la devolución de productos
         $this->forge->addKey('id', true);
         $this->forge->addForeignKey('purchase_id', 'purchases', 'id', 'CASCADE', 'CASCADE');
         $this->forge->addForeignKey('product_id', 'products', 'id', 'CASCADE', 'RESTRICT'); // RESTRICT para no borrar productos con compras
