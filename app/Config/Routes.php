@@ -36,3 +36,5 @@ $routes->group('customers', ['filter' => 'session'], function ($routes) { // 'se
     $routes->get('delete/(:num)', 'CustomerController::delete/$1', ['as' => 'customer_delete']); // Para MVP GET con confirmación JS
     // Considera $routes->post('delete/(:num)', 'CustomerController::delete/$1'); para producción
 });
+
+$routes->resource('suppliers', ['controller' => 'App\Controllers\SuppliersController']);
