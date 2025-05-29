@@ -8,7 +8,7 @@ use CodeIgniter\Router\RouteCollection;
 service('auth')->routes($routes);
 
 $routes->get('/', 'Home::index');
-$routes->get('app', 'DashboardController::index');
+$routes->get('dashboard', 'DashboardController::index');
 
 $routes->group('products', ['filter' => 'session'], function ($routes) { // 'session' es el filtro de auth de Shield
     $routes->get('/', 'ProductController::index');

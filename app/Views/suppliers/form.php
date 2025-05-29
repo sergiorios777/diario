@@ -1,4 +1,4 @@
-<?= $this->extend('layout/app_layout') ?>
+<?= $this->extend('layouts/app_layout') ?>
 
 <?= $this->section('title') ?>
 <?= esc($title ?? 'Formulario de Proveedor') ?>
