@@ -19,3 +19,10 @@ $routes->group('products', ['filter' => 'session'], function ($routes) { // 'ses
     $routes->get('delete/(:num)', 'ProductController::delete/$1'); // Para MVP. Mejor usar POST o DELETE con un form.
     // $routes->post('delete/(:num)', 'ProductController::delete/$1'); // Si usas un form para el delete
 });
+
+$routes->group('purchases', ['filter' => 'session'], function ($routes) {
+    $routes->get('/', 'PurchaseController::index');
+    $routes->get('new', 'PurchaseController::new');
+    $routes->post('create', 'PurchaseController::create');
+    $routes->get('show/(:num)', 'PurchaseController::show/$1');
+});
