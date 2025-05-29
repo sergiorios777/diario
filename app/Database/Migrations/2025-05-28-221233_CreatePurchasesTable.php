@@ -53,6 +53,8 @@ class CreatePurchasesTable extends Migration
                 'null' => true,
             ],
         ]);
+
+        // Se implementará deleted_at posterioremente por su implicancia en la devolución de productos
         $this->forge->addKey('id', true);
         // Asegúrate de que la tabla 'suppliers' exista si vas a usar esta FK.
         // $this->forge->addForeignKey('supplier_id', 'suppliers', 'id', 'CASCADE', 'SET NULL');
