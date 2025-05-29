@@ -37,4 +37,4 @@ $routes->group('customers', ['filter' => 'session'], function ($routes) { // 'se
     // Considera $routes->post('delete/(:num)', 'CustomerController::delete/$1'); para producción
 });
 
-$routes->resource('suppliers', ['controller' => 'App\Controllers\SuppliersController']);
+$routes->resource('suppliers', ['controller' => 'SuppliersController']);

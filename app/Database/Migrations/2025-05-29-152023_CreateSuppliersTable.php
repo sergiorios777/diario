@@ -8,8 +8,6 @@ class CreateSuppliersTable extends Migration
 {
     public function up()
     {
-    public function up()
-    {
         $this->forge->addField([
             'id' => [
                 'type'           => 'INT',
